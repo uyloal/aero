@@ -41,6 +41,26 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: release
-          publish_dir: ./output 
+          publish_dir: ./output
           force_orphan: true
           commit_message: 'ci: deploy rule providers and clash config'
+
+      - name: Generate release tag
+        id: tag
+        run: echo "tag=v$(date +%Y.%m.%d)" >> $GITHUB_OUTPUT
+
+      - name: Read release notes
+        id: notes
+        run: |
+          body=$(cat output/RELEASE_NOTES.md)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create or update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          body: ${{ steps.notes.outputs.body }}
+          target_commitish: release
