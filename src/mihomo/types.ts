@@ -461,7 +461,7 @@ export interface MihomoConfig {
 }
 
 /**
- * 手动规则类型 (rules.ts 中的单条规则)
+ * 自定义规则类型 (rules.ts 中的单条规则)
  * 格式为: TYPE,VALUE,TARGET 或 TYPE,VALUE,PARAMS,TARGET
  */
 export type ManualRule<Target extends string> =

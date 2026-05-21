@@ -23,7 +23,7 @@ async function main(): Promise<void> {
   const first = results[0]
   logger.success(`Builder 完成：${results.map((r) => `output/${r.filename}`).join('、')} 已生成`)
   logger.success(
-    `规则总数：${first.ruleCount} 条（手动 ${first.manualCount} = before ${first.beforeCount} + after ${first.afterCount} + 生成 ${first.ruleCount - first.manualCount}）`
+    `规则总数：${first.ruleCount} 条（自定义 ${first.manualCount} = before ${first.beforeCount} + after ${first.afterCount} + 生成 ${first.ruleCount - first.manualCount}）`
   )
   logger.success(`规则集：${first.providerCount} 个 rule-provider`)
 
