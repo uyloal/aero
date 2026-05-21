@@ -5,7 +5,6 @@ import { CONFIG_SKELETON } from './config'
 import { ROUTING_MAP } from './config/routing'
 import { MANUAL_RULES_BEFORE, MANUAL_RULES_AFTER } from './config/rules'
 import { RULE_PROVIDER_INTERVAL } from './config/remote'
-import { PROXY_GROUPS } from './config/proxy-groups'
 import type { RemoteVariant } from './config/pipeline'
 import type { PipelineManifest } from './pipeline/runner'
 import { logger } from './core/logger'
@@ -116,7 +115,17 @@ export function buildConfig(manifest: PipelineManifest, remoteBaseUrl: string): 
  * 2. 组合 CONFIG_SKELETON + rule-providers + rules。
  * 3. 序列化为 dist/config-{suffix}.yaml。
  */
-export async function runBuilder(manifest: PipelineManifest, variant?: RemoteVariant): Promise<void> {
+export interface BuilderResult {
+  filename: string
+  baseUrl: string
+  ruleCount: number
+  providerCount: number
+  manualCount: number
+  beforeCount: number
+  afterCount: number
+}
+
+export async function runBuilder(manifest: PipelineManifest, variant?: RemoteVariant): Promise<BuilderResult> {
   await $`mkdir -p ${DIST_DIR}`
 
   const suffix = variant?.suffix ?? 'raw'
@@ -134,16 +143,16 @@ export async function runBuilder(manifest: PipelineManifest, variant?: RemoteVar
   const filename = suffix === 'raw' ? 'config.yaml' : `config-${suffix}.yaml`
   await Bun.write(`${DIST_DIR}/${filename}`, yaml)
 
-  const manualCount = MANUAL_RULES_BEFORE.length + MANUAL_RULES_AFTER.length
-  logger.success(`Builder 完成：${DIST_DIR}/${filename} 已生成（${baseUrl}）`)
-  logger.success(
-    `规则总数：${ruleCount} 条（手动 ${manualCount} = before ${MANUAL_RULES_BEFORE.length} + after ${MANUAL_RULES_AFTER.length} + 生成 ${ruleCount - manualCount}）`
-  )
-  logger.success(`规则集：${providerCount} 个 rule-provider`)
+  const beforeCount = MANUAL_RULES_BEFORE.length
+  const afterCount = MANUAL_RULES_AFTER.length
+  const manualCount = beforeCount + afterCount
+
+  return { filename, baseUrl, ruleCount, providerCount, manualCount, beforeCount, afterCount }
 }
 
 /**
  * 生成 RELEASE_NOTES.md，供 CI/CD 创建 GitHub Release 时使用。
+ * 内容保持紧凑，适合 GitHub Release UI 直接阅读。
  */
 function translateTrigger(eventName: string): string {
   const map: Record<string, string> = {
@@ -154,22 +163,32 @@ function translateTrigger(eventName: string): string {
   return map[eventName] || '本地构建'
 }
 
+function summarizeByCategory(manifest: PipelineManifest): string {
+  const groups = new Map<string, { domain: number; ip: number; classical: number }>()
+  for (const e of manifest.entries) {
+    const g = groups.get(e.category) ?? { domain: 0, ip: 0, classical: 0 }
+    g[e.demoteType] += e.count
+    groups.set(e.category, g)
+  }
+  return Array.from(groups.entries())
+    .map(([cat, c]) => {
+      const parts: string[] = []
+      if (c.domain) parts.push(`${c.domain} 域名`)
+      if (c.ip) parts.push(`${c.ip} IP`)
+      if (c.classical) parts.push(`${c.classical} 经典`)
+      return `- **${cat}**：${parts.join('，')}`
+    })
+    .join('\n')
+}
+
 export async function generateReleaseNotes(manifest: PipelineManifest, repoSlug: string): Promise<void> {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 19)
 
   const providerCount = manifest.entries.length
   const generatedRuleCount = manifest.entries.reduce((sum, e) => sum + e.count, 0)
   const manualCount = MANUAL_RULES_BEFORE.length + MANUAL_RULES_AFTER.length
-  const configRuleCount = providerCount + manualCount
   const totalRuleCount = generatedRuleCount + manualCount
 
-  const domainCount = manifest.entries.filter((e) => e.demoteType === 'domain').reduce((sum, e) => sum + e.count, 0)
-  const ipCount = manifest.entries.filter((e) => e.demoteType === 'ip').reduce((sum, e) => sum + e.count, 0)
-  const classicalCount = manifest.entries
-    .filter((e) => e.demoteType === 'classical')
-    .reduce((sum, e) => sum + e.count, 0)
-
-  // 构建元数据（CI/CD 环境变量）
   const fullSha = process.env.GITHUB_SHA ?? ''
   const sha = fullSha ? fullSha.slice(0, 7) : '未知'
   const eventName = process.env.GITHUB_EVENT_NAME ?? ''
@@ -183,88 +202,38 @@ export async function generateReleaseNotes(manifest: PipelineManifest, repoSlug:
   const runLink = runId ? `${serverUrl}/${repository}/actions/runs/${runId}` : ''
   const commitLink = fullSha ? `${serverUrl}/${repository}/commit/${fullSha}` : ''
 
-  const configUrls = [
-    { name: 'GitHub Raw', url: `https://raw.githubusercontent.com/${repoSlug}/release/config.yaml` },
-    { name: 'jsDelivr', url: `https://cdn.jsdelivr.net/gh/${repoSlug}@release/config.yaml` },
-    { name: 'Fastly jsDelivr', url: `https://fastly.jsdelivr.net/gh/${repoSlug}@release/config.yaml` }
-  ]
+  const categorySummary = summarizeByCategory(manifest)
 
-  const groupNames = PROXY_GROUPS.map((g) => g.name)
+  const content = `## 订阅地址
 
-  const categoryRows = manifest.entries
-    .map((e) => {
-      const typeLabel = e.demoteType === 'domain' ? '域名' : e.demoteType === 'ip' ? 'IP 段' : '经典'
-      return `| ${e.category} | ${typeLabel} | \`${e.filename}\` | ${e.count} |`
-    })
-    .join('\n')
+在 Mihomo 客户端中导入以下任一地址：
 
-  const rulesFileList = manifest.entries.map((e) => `- \`rules/${e.filename}\` — ${e.count} 条规则`).join('\n')
+**官方 / CDN**
+- \`https://raw.githubusercontent.com/${repoSlug}/release/config.yaml\`
+- \`https://cdn.jsdelivr.net/gh/${repoSlug}@release/config.yaml\`
+- \`https://fastly.jsdelivr.net/gh/${repoSlug}@release/config.yaml\`
 
-  const content = `## 使用方法
+**国内加速镜像**
+- \`https://github.akams.cn/https://raw.githubusercontent.com/${repoSlug}/release/config.yaml\`
+- \`https://gh-proxy.com/https://raw.githubusercontent.com/${repoSlug}/release/config.yaml\`
 
-### 订阅地址
+> 若 GitHub 原始地址无法访问，优先使用 **jsDelivr** 或国内加速镜像节点。
 
-在 Mihomo 客户端中导入以下任一地址作为远程配置：
+## 构建概览
 
-| 分发节点 | 订阅地址 |
-|----------|----------|
-${configUrls.map((u) => `| ${u.name} | \`${u.url}\` |`).join('\n')}
+- **规则总数**：${totalRuleCount}（${generatedRuleCount} 自动生成 + ${manualCount} 手动）
+- **规则集**：${providerCount} 个
+- **时间**：${now}
+- **触发**：${trigger}${eventName ? ` \`${eventName}\`` : ''}
+- **版本**：${commitLink ? `[${sha}](${commitLink})` : sha}${actor ? ` · ${actor}` : ''}${runLink && runNumber ? ` · [#${runNumber}](${runLink})` : ''}
 
-> 提示：如果 GitHub 原始地址在你的网络环境中无法直接访问，优先选择 **jsDelivr** 或 **Fastly jsDelivr** 节点。
+## 规则分类
 
-### 策略组概览
-
-当前配置包含以下策略组，可在客户端中按需切换：
-
-${groupNames.map((n) => `- **${n}**`).join('\n')}
-
-### 代理节点占位符
-
-配置文件中的代理节点使用环境变量占位符（如 \`\${HK_PASSWORD}\`、\`\${SUB_URL}\`）。首次使用前请：
-
-1. 替换 \`src/config/proxies.ts\` 中的占位符为真实凭据，或
-2. 利用 \`proxy-providers\` 自动拉取机场订阅（已内置 \`Airport-Sub\` provider）。
-
-## 构建统计
-
-| 指标 | 数值 |
-|------|------|
-| 构建时间 | ${now} |
-| 配置规则数（\`rules\` 数组） | ${configRuleCount}（${providerCount} 条规则集引用 + ${manualCount} 条手动） |
-| 展开规则总数（含规则集内容） | ${totalRuleCount} |
-| 规则提供方 | ${providerCount} 个 |
-| 域名规则 | ${domainCount} |
-| IP 段规则 | ${ipCount} |
-| 经典规则 | ${classicalCount} |
-
-## 构建元数据
-
-| 项目 | 内容 |
-|------|------|
-| 代码版本 | ${commitLink ? `[\`${sha}\`](${commitLink})` : `\`${sha}\``} |
-| 触发方式 | ${trigger}${eventName ? `（\`${eventName}\`）` : ''} |
-| 执行者 | ${actor} |
-| 工作流编号 | ${runLink && runNumber ? `[#${runNumber}](${runLink})` : runNumber ? `#${runNumber}` : '-'} |
-
-## 规则集明细
-
-| 分类 | 类型 | 文件 | 规则数 |
-|------|------|------|--------|
-${categoryRows}
-
-## 文件清单
-
-### 主配置
-- \`config.yaml\` — GitHub 原始分发
-- \`config-jsdelivr.yaml\` — jsDelivr 内容分发网络
-- \`config-fastly.yaml\` — Fastly 内容分发网络
-
-### 规则集（\`rules/\`）
-${rulesFileList}
+${categorySummary}
 
 ---
 
-*由 aero 基础设施即代码流水线自动生成。*
+*由 aero IaC 流水线自动生成。*
 `
 
   await Bun.write(`${DIST_DIR}/RELEASE_NOTES.md`, content)
