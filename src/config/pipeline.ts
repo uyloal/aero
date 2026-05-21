@@ -77,11 +77,13 @@ export interface RemoteVariant {
 }
 
 /**
- * 三分发变体：GitHub raw + jsDelivr + fastly.jsdelivr
+ * 多分发变体：GitHub raw + jsDelivr + fastly.jsdelivr + 国内常用加速镜像
  * Builder 会为每个变体生成独立的 config-{suffix}.yaml
  */
 export const REMOTE_VARIANTS: readonly RemoteVariant[] = [
   { suffix: 'raw', url: `https://raw.githubusercontent.com/${REPO_SLUG}/release/rules` },
   { suffix: 'jsdelivr', url: `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@release/rules` },
-  { suffix: 'fastly', url: `https://fastly.jsdelivr.net/gh/${REPO_SLUG}@release/rules` }
+  { suffix: 'fastly', url: `https://fastly.jsdelivr.net/gh/${REPO_SLUG}@release/rules` },
+  { suffix: 'akams', url: `https://github.akams.cn/https://raw.githubusercontent.com/${REPO_SLUG}/release/rules` },
+  { suffix: 'gh-proxy', url: `https://gh-proxy.com/https://raw.githubusercontent.com/${REPO_SLUG}/release/rules` }
 ] as const
