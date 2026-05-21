@@ -31,14 +31,17 @@ fetcher → validator → demoter → compiler → YAML output
 
 ### Modules
 
-- **`src/core/config.ts`** — `PIPELINE_CONFIG` maps each category (e.g. `ai`, `google`, `netflix`) to an array of upstream sources (`{ id, url }`). Uses the `bm7()` helper for blackmatrix7/ios_rule_script URLs. Add new categories/sources here.
+- **`src/core/types.ts`** — Shared type definitions: `Upstream` (`{ id, url }`), `RuleCategory`, and `PipelineConfig` (`Record<RuleCategory, Upstream[]>`).
+- **`src/core/config.ts`** — `PIPELINE_CONFIG` maps each category (e.g. `ai`, `google`, `netflix`) to an array of upstream sources. Uses the `bm7()` helper for blackmatrix7/ios_rule_script URLs. Add new categories/sources here.
+- **`src/core/logger.ts`** — Custom `consola` reporter with colored type icons (`ℹ`, `✔`, `⚠`, `✖`) and an OSC8 hyperlink helper (`link(text, url)`) for clickable terminal URLs.
+- **`src/mihomo/types.ts`** — Exhaustive `RULE_TYPES` const array and `RuleType` / `ParsedRule` type definitions for all mihomo/Clash rule types.
 - **`src/pipeline/fetcher.ts`** — Fetches raw YAML via `ky` with retries (10s timeout, 3 retries on standard failure status codes).
 - **`src/pipeline/validator.ts`** — Parses YAML and validates with `valibot` that the root shape is `{ payload: string[] }`.
 - **`src/pipeline/demoter.ts`** — Categorizes each rule line into:
-  - `domains`: `DOMAIN`, `DOMAIN-SUFFIX` (normalized), `DOMAIN-WILDCARD`
+  - `domains`: `DOMAIN`, `DOMAIN-SUFFIX` (normalized into `+.` wildcard form)
   - `ips`: `IP-CIDR`, `IP-CIDR6`
-  - `classical`: `DOMAIN-KEYWORD`
-  - `dropped`: everything else (counted by type, discarded)
+  - `classical`: `DOMAIN-KEYWORD`, `DOMAIN-WILDCARD`, `DOMAIN-REGEX`, `GEOSITE`, `IP-SUFFIX`, `IP-ASN`, `GEOIP`, `SRC-*`, port rules, `NETWORK`, `DSCP`, logic operators (`AND`/`OR`/`NOT`), `MATCH`
+  - `dropped`: unrecognized rule types (counted by type, logged). `PROCESS-*` and `UID` rules are silently discarded as they are local-environment rules that should not appear in remote subscriptions.
 - **`src/pipeline/compiler.ts`** — Deduplicates and sorts domains, IPs, and classical rules across all successful sources for a category.
 
 ### Output
@@ -64,7 +67,7 @@ Each source within a category is fetched in parallel with `Promise.allSettled`. 
 ## Code Style
 
 - **Formatter/Linter**: Biome (120 char line width, 2-space indent, single quotes, no semicolons, no trailing commas).
-- Linter is **disabled** in `biome.json` (`linter.enabled: false`).
+- Linter and assist are **disabled** in `biome.json` (`linter.enabled: false`, `assist.enabled: false`).
 - The project uses ES modules (`"type": "module"`).
 
 ## Documentation Reference
