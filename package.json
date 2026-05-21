@@ -4,6 +4,7 @@
   "description": "Generate mihomo rule-provider YAML files from upstream sources",
   "packageManager": "pnpm@11.1.3",
   "scripts": {
+    "postinstall": "bun run scripts/postinstall.ts",
     "build": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
     "format": "biome format --write",
