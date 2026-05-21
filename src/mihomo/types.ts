@@ -390,6 +390,7 @@ export interface DnsConfig {
   hosts?: Record<string, string | string[]>
   'respect-rules'?: boolean
   'prefer-h3'?: boolean
+  'cache-algorithm'?: 'lru' | 'arc'
   fallback?: string[]
   'fallback-filter'?: {
     geoip?: boolean
@@ -437,8 +438,9 @@ export interface MihomoConfig {
   'geodata-mode'?: boolean
   'geodata-loader'?: string
   'geosite-matching'?: 'hybrid' | 'suffix-tree' | 'linear'
-  'tcp-keep-alive'?: boolean
-  'tcp-keep-alive-interval'?: number
+  'disable-keep-alive'?: boolean
+  'keep-alive-idle'?: number
+  'keep-alive-interval'?: number
   'log-level'?: 'silent' | 'error' | 'warning' | 'info' | 'debug'
   ipv6?: boolean
   'global-client-fingerprint'?: string
@@ -451,6 +453,7 @@ export interface MihomoConfig {
   'rule-providers'?: Record<string, RuleProvider>
   rules?: string[]
   'sub-rules'?: Record<string, string[]>
+  listeners?: Record<string, unknown>[]
 }
 
 /**

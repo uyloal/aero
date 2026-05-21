@@ -3,7 +3,7 @@ import YAML from 'yaml'
 import type { MihomoConfig, RuleProvider } from './mihomo/types'
 import { CONFIG_SKELETON } from './config'
 import { ROUTING_MAP } from './config/routing'
-import { MANUAL_RULES } from './config/rules'
+import { MANUAL_RULES_BEFORE, MANUAL_RULES_AFTER } from './config/rules'
 import { RULE_PROVIDER_INTERVAL } from './config/remote'
 import { REMOTE_BASE_URL } from './config/pipeline'
 import type { PipelineManifest } from './pipeline/runner'
@@ -63,11 +63,8 @@ function buildRules(manifest: PipelineManifest): string[] {
     }
   }
 
-  // 环境规则（MANUAL_RULES）优先级最高，插入到 RULE-SET 之前
-  // 尾部兜底规则（MATCH）自动追加到末尾
-  const manualRules = [...MANUAL_RULES]
-
-  return [...manualRules, ...generatedRules]
+  // 拼接顺序：before 规则（高优先级本地规则）→ RULE-SET → after 规则（兜底规则）
+  return [...MANUAL_RULES_BEFORE, ...generatedRules, ...MANUAL_RULES_AFTER]
 }
 
 /**
@@ -94,7 +91,16 @@ export function buildConfig(manifest: PipelineManifest): MihomoConfig {
     'external-controller': CONFIG_SKELETON['external-controller'],
     profile: CONFIG_SKELETON.profile,
     tun: CONFIG_SKELETON.tun,
+    'geodata-mode': CONFIG_SKELETON['geodata-mode'],
+    'geodata-loader': CONFIG_SKELETON['geodata-loader'],
+    'geo-auto-update': CONFIG_SKELETON['geo-auto-update'],
+    'geo-update-interval': CONFIG_SKELETON['geo-update-interval'],
+    'geox-url': CONFIG_SKELETON['geox-url'],
+    'keep-alive-idle': CONFIG_SKELETON['keep-alive-idle'],
+    'keep-alive-interval': CONFIG_SKELETON['keep-alive-interval'],
     dns: CONFIG_SKELETON.dns,
+    sniffer: CONFIG_SKELETON.sniffer,
+    listeners: CONFIG_SKELETON.listeners,
     proxies: CONFIG_SKELETON.proxies as unknown as MihomoConfig['proxies'],
     'proxy-groups': CONFIG_SKELETON['proxy-groups'] as unknown as MihomoConfig['proxy-groups'],
     'proxy-providers': CONFIG_SKELETON['proxy-providers'],
@@ -120,7 +126,10 @@ export async function runBuilder(manifest: PipelineManifest): Promise<void> {
   const ruleCount = config.rules?.length ?? 0
   const providerCount = Object.keys(config['rule-providers'] ?? {}).length
 
+  const manualCount = MANUAL_RULES_BEFORE.length + MANUAL_RULES_AFTER.length
   logger.success(`Builder 完成：${DIST_DIR}/config.yaml 已生成`)
-  logger.success(`规则总数：${ruleCount} 条（手动 ${MANUAL_RULES.length} + 生成 ${ruleCount - MANUAL_RULES.length}）`)
+  logger.success(
+    `规则总数：${ruleCount} 条（手动 ${manualCount} = before ${MANUAL_RULES_BEFORE.length} + after ${MANUAL_RULES_AFTER.length} + 生成 ${ruleCount - manualCount}）`
+  )
   logger.success(`规则集：${providerCount} 个 rule-provider`)
 }
