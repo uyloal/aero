@@ -58,8 +58,30 @@ export const PIPELINE_CONFIG = {
 export type Category = keyof typeof PIPELINE_CONFIG
 
 /**
- * 远程 Rule-Provider 基地址
- * 由环境变量 PROVIDER_BASE_URL 驱动，CI/CD 注入实际的 GitHub Pages 地址。
- * 本地调试可留空或替换为占位符。
+ * 远程 Rule-Provider 基地址（向后兼容）
+ * 由环境变量 PROVIDER_BASE_URL 驱动，CI/CD 注入 GitHub raw 或 CDN 地址。
+ * 本地调试可替换为占位符。
  */
-export const REMOTE_BASE_URL = process.env.PROVIDER_BASE_URL || 'https://REPLACE_ME_WITH_YOUR_DOMAIN/rules'
+export const REMOTE_BASE_URL =
+  process.env.PROVIDER_BASE_URL || 'https://raw.githubusercontent.com/OWNER/REPO/release/rules'
+
+/**
+ * 仓库标识，用于自动生成多分发地址。
+ * CI/CD 中通过 GITHUB_REPO_SLUG=owner/repo 注入。
+ */
+const REPO_SLUG = process.env.GITHUB_REPO_SLUG || 'OWNER/REPO'
+
+export interface RemoteVariant {
+  suffix: string
+  url: string
+}
+
+/**
+ * 三分发变体：GitHub raw + jsDelivr + fastly.jsdelivr
+ * Builder 会为每个变体生成独立的 config-{suffix}.yaml
+ */
+export const REMOTE_VARIANTS: readonly RemoteVariant[] = [
+  { suffix: 'raw', url: `https://raw.githubusercontent.com/${REPO_SLUG}/release/rules` },
+  { suffix: 'jsdelivr', url: `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@release/rules` },
+  { suffix: 'fastly', url: `https://fastly.jsdelivr.net/gh/${REPO_SLUG}@release/rules` }
+] as const
