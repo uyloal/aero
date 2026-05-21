@@ -31,7 +31,7 @@ export const MANUAL_RULES_BEFORE: readonly ManualRule<TargetName>[] = [
   'IP-CIDR6,fd7a:115c:a1e0::/48,DIRECT,no-resolve',
 
   // APNS (Apple Push Notification Service)
-  'DOMAIN-SUFFIX,push.apple.com,自动选择',
+  'DOMAIN-SUFFIX,push.apple.com,自动选择'
 ] as const
 
 /**

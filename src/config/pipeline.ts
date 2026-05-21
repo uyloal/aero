@@ -76,7 +76,7 @@ export const PIPELINE_CONFIG = {
     { id: 'bm7-gov-cn', url: bm7('GovCN') },
     { id: 'bm7-wechat', url: bm7('WeChat') },
     { id: 'bm7-wetype', url: bm7('WeType') },
-    { id: 'bm7-apple', url: bm7('Apple') },
+    { id: 'bm7-apple', url: bm7('Apple') }
   ],
   sg: [{ id: 'bm7-telegram-sg', url: bm7('TelegramSG') }],
   us: [
