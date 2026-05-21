@@ -3,6 +3,8 @@ import { BASE_CONFIG } from './base'
 import { DNS_CONFIG } from './dns'
 import { PROXIES, PROXY_PROVIDERS } from './proxies'
 import { PROXY_GROUPS } from './proxy-groups'
+import { SNIFFER_CONFIG } from './sniffer'
+import { LISTENERS_CONFIG } from './listeners'
 
 /**
  * Config Skeleton：聚合所有模块的完整 mihomo 配置骨架
@@ -15,6 +17,8 @@ export const CONFIG_SKELETON: Omit<MihomoConfig, 'rule-providers' | 'rules' | 'p
 } = {
   ...BASE_CONFIG,
   dns: DNS_CONFIG,
+  sniffer: SNIFFER_CONFIG,
+  listeners: LISTENERS_CONFIG,
   proxies: PROXIES,
   'proxy-providers': PROXY_PROVIDERS,
   'proxy-groups': PROXY_GROUPS
