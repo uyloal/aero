@@ -5,7 +5,7 @@ import { CONFIG_SKELETON } from './config'
 import { ROUTING_MAP } from './config/routing'
 import { MANUAL_RULES_BEFORE, MANUAL_RULES_AFTER } from './config/rules'
 import { RULE_PROVIDER_INTERVAL } from './config/remote'
-import { REMOTE_BASE_URL } from './config/pipeline'
+import type { RemoteVariant } from './config/pipeline'
 import type { PipelineManifest } from './pipeline/runner'
 import { logger } from './core/logger'
 
@@ -21,7 +21,7 @@ interface RuleProviders {
  * 产物用于公共订阅分发，所有 rule-provider 统一使用 `type: 'http'` 指向远程 URL，
  * `path` 为 Mihomo 客户端下载后的本地缓存路径规范。
  */
-function buildRuleProviders(manifest: PipelineManifest): RuleProviders {
+function buildRuleProviders(manifest: PipelineManifest, remoteBaseUrl: string): RuleProviders {
   const providers: RuleProviders = {}
 
   for (const entry of manifest.entries) {
@@ -31,7 +31,7 @@ function buildRuleProviders(manifest: PipelineManifest): RuleProviders {
     providers[key] = {
       type: 'http',
       behavior,
-      url: `${REMOTE_BASE_URL}/${entry.filename}`,
+      url: `${remoteBaseUrl}/${entry.filename}`,
       path: `${RULES_BASE_PATH}/${entry.filename}`,
       interval: RULE_PROVIDER_INTERVAL
     }
@@ -70,8 +70,8 @@ function buildRules(manifest: PipelineManifest): string[] {
 /**
  * 构建完整的 Mihomo 配置对象。
  */
-export function buildConfig(manifest: PipelineManifest): MihomoConfig {
-  const ruleProviders = buildRuleProviders(manifest)
+export function buildConfig(manifest: PipelineManifest, remoteBaseUrl: string): MihomoConfig {
+  const ruleProviders = buildRuleProviders(manifest, remoteBaseUrl)
   const rules = buildRules(manifest)
 
   return {
@@ -113,21 +113,25 @@ export function buildConfig(manifest: PipelineManifest): MihomoConfig {
  * Builder 主入口：
  * 1. 接收 Pipeline 生成清单。
  * 2. 组合 CONFIG_SKELETON + rule-providers + rules。
- * 3. 序列化为 dist/config.yaml。
+ * 3. 序列化为 dist/config-{suffix}.yaml。
  */
-export async function runBuilder(manifest: PipelineManifest): Promise<void> {
+export async function runBuilder(manifest: PipelineManifest, variant?: RemoteVariant): Promise<void> {
   await $`mkdir -p ${DIST_DIR}`
 
-  const config = buildConfig(manifest)
+  const suffix = variant?.suffix ?? 'raw'
+  const baseUrl = variant?.url ?? 'https://raw.githubusercontent.com/OWNER/REPO/release/rules'
+
+  const config = buildConfig(manifest, baseUrl)
   const yaml = YAML.stringify(config)
 
-  await Bun.write(`${DIST_DIR}/config.yaml`, yaml)
+  const filename = suffix === 'raw' ? 'config.yaml' : `config-${suffix}.yaml`
+  await Bun.write(`${DIST_DIR}/${filename}`, yaml)
 
   const ruleCount = config.rules?.length ?? 0
   const providerCount = Object.keys(config['rule-providers'] ?? {}).length
 
   const manualCount = MANUAL_RULES_BEFORE.length + MANUAL_RULES_AFTER.length
-  logger.success(`Builder 完成：${DIST_DIR}/config.yaml 已生成`)
+  logger.success(`Builder 完成：${DIST_DIR}/${filename} 已生成（${baseUrl}）`)
   logger.success(
     `规则总数：${ruleCount} 条（手动 ${manualCount} = before ${MANUAL_RULES_BEFORE.length} + after ${MANUAL_RULES_AFTER.length} + 生成 ${ruleCount - manualCount}）`
   )

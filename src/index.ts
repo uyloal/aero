@@ -1,5 +1,6 @@
 import { runPipeline } from './pipeline/runner'
 import { runBuilder } from './builder'
+import { REMOTE_VARIANTS } from './config/pipeline'
 import { logger } from './core/logger'
 
 async function main(): Promise<void> {
@@ -12,8 +13,10 @@ async function main(): Promise<void> {
   // Phase 1: Pipeline — 拉取、清洗、编译远端规则
   const manifest = await runPipeline()
 
-  // Phase 2: Builder — 组装骨架、生成 rule-providers、缝合 rules、输出 YAML
-  await runBuilder(manifest)
+  // Phase 2: Builder — 为每个分发变体生成独立配置
+  for (const variant of REMOTE_VARIANTS) {
+    await runBuilder(manifest, variant)
+  }
 }
 
 main().catch((error) => {
