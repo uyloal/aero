@@ -25,7 +25,11 @@ export const PIPELINE_CONFIG: PipelineConfig = {
   proxy: [
     { id: 'bm7-proxy', url: bm7('Proxy') },
     { id: 'bm7-proxy-lite', url: bm7('ProxyLite') },
-    { id: 'bm7-global-media', url: bm7('GlobalMedia') }
+    { id: 'bm7-global-media', url: bm7('GlobalMedia') },
+    { id: 'bm7-tiktok', url: bm7('TikTok') },
+    { id: 'bm7-imgur', url: bm7('Imgur') },
+    { id: 'bm7-docker', url: bm7('Docker') },
+    { id: 'bm7-github', url: bm7('GitHub') }
   ],
   direct: [
     { id: 'bm7-direct', url: bm7('Direct') },
@@ -38,7 +42,8 @@ export const PIPELINE_CONFIG: PipelineConfig = {
     { id: 'bm7-china-max-no-ip', url: bm7('ChinaMaxNoIP') },
     { id: 'bm7-china-no-media', url: bm7('ChinaNoMedia') },
     { id: 'bm7-gov-cn', url: bm7('GovCN') },
-    { id: 'bm7-china-dns', url: bm7('ChinaDNS') }
+    { id: 'bm7-wechat', url: bm7('WeChat') },
+    { id: 'bm7-wetype', url: bm7('WeType') },
   ],
   sg: [{ id: 'bm7-telegram-sg', url: bm7('TelegramSG') }],
   us: [
