@@ -1,4 +1,7 @@
-import type { PipelineConfig } from './types'
+export interface Upstream {
+  id: string
+  url: string
+}
 
 const BLACKMATRIX7_BASE = 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash'
 
@@ -6,14 +9,11 @@ function bm7(path: string, file?: string): string {
   return `${BLACKMATRIX7_BASE}/${path}/${file ?? path}.yaml`
 }
 
-// 分组说明：
-// - ai       : AI 服务分流（ChatGPT、Claude 等）
-// - proxy    : 通用代理（Proxy、ProxyLite、GlobalMedia 等）
-// - direct   : 直连/DIRECT（中国境内、局域网、DNS 等）
-// - sg       : 新加坡地区分流
-// - us       : 美国地区分流
-// - eu       : 欧洲地区分流
-export const PIPELINE_CONFIG: PipelineConfig = {
+/**
+ * Pipeline 业务分类及远端 URL 列表
+ * 使用 `as const satisfies Record<string, readonly Upstream[]>` 保留字面量联合类型
+ */
+export const PIPELINE_CONFIG = {
   ai: [
     { id: 'bm7-openai', url: bm7('OpenAI') },
     { id: 'bm7-anthropic', url: bm7('Anthropic') },
@@ -43,7 +43,7 @@ export const PIPELINE_CONFIG: PipelineConfig = {
     { id: 'bm7-china-no-media', url: bm7('ChinaNoMedia') },
     { id: 'bm7-gov-cn', url: bm7('GovCN') },
     { id: 'bm7-wechat', url: bm7('WeChat') },
-    { id: 'bm7-wetype', url: bm7('WeType') },
+    { id: 'bm7-wetype', url: bm7('WeType') }
   ],
   sg: [{ id: 'bm7-telegram-sg', url: bm7('TelegramSG') }],
   us: [
@@ -53,4 +53,13 @@ export const PIPELINE_CONFIG: PipelineConfig = {
     { id: 'bm7-us-media', url: bm7('USMedia') }
   ],
   eu: [{ id: 'bm7-telegram-nl', url: bm7('TelegramNL') }]
-}
+} as const satisfies Record<string, readonly Upstream[]>
+
+export type Category = keyof typeof PIPELINE_CONFIG
+
+/**
+ * 远程 Rule-Provider 基地址
+ * 由环境变量 PROVIDER_BASE_URL 驱动，CI/CD 注入实际的 GitHub Pages 地址。
+ * 本地调试可留空或替换为占位符。
+ */
+export const REMOTE_BASE_URL = process.env.PROVIDER_BASE_URL || 'https://REPLACE_ME_WITH_YOUR_DOMAIN/rules'
