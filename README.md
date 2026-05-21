@@ -62,7 +62,53 @@ cd aero
 pnpm install
 ```
 
-### 3. 构建配置
+### 3. 填入代理节点（重要）
+
+`src/config/proxies.ts` 默认留空，避免敏感信息进入版本控制。首次使用必须填入你的代理节点：
+
+```bash
+# 编辑 src/config/proxies.ts，填入 SS / VMess / VLESS 等节点
+# 也可以直接订阅代理集（proxy-provider）
+```
+
+参考示例（`src/config/proxies.ts`）：
+
+```typescript
+import type { Proxy, ProxyProvider } from '../mihomo/types'
+
+export const PROXIES = [
+  {
+    name: 'HK-01',
+    type: 'ss',
+    server: '1.2.3.4',
+    port: 8388,
+    cipher: 'aes-256-gcm',
+    password: 'your-password',
+    udp: true
+  }
+] as const satisfies readonly Proxy[]
+
+export type ProxyName = (typeof PROXIES)[number]['name']
+
+export const PROXY_PROVIDERS: Record<string, ProxyProvider> = {
+  'Airport-Sub': {
+    type: 'http',
+    url: 'https://your-sub-url',
+    interval: 3600,
+    path: './proxy-providers/airport.yaml',
+    'health-check': {
+      enable: true,
+      url: 'http://www.gstatic.com/generate_204',
+      interval: 300
+    },
+    proxy: 'DIRECT'
+  }
+}
+```
+
+> 填入后该文件仅保存在本地，**不要提交到仓库**。
+
+### 4. 构建配置
 
 ```bash
 pnpm build
@@ -90,7 +136,7 @@ output/
     └── ...
 ```
 
-### 4. 在 mihomo 中使用
+### 5. 在 mihomo 中使用
 
 将 `output/config.yaml` 复制到 mihomo 配置目录，或在客户端中直接订阅 `config.yaml` 的远程地址（如果你已部署到 GitHub Pages 或 release 分支）。
 
@@ -126,7 +172,7 @@ pnpm install
 
 | 文件 | 作用 | 是否必须修改 |
 |------|------|-------------|
-| `src/config/proxies.ts` | 代理节点（SS / VMess / VLESS / Trojan 等） | **是**（填入你的节点） |
+| `src/config/proxies.ts` | 代理节点（SS / VMess / VLESS / Trojan 等） | **是**（本地填入，不入版本库） |
 | `src/config/proxy-groups.ts` | 代理组（selector / url-test / fallback） | 按需 |
 | `src/config/routing.ts` | 类别 → 代理组映射（如 `ai → AI`） | 按需 |
 | `src/config/rules.ts` | 手动规则（最高优先级 + 兜底 MATCH） | 按需 |
@@ -134,7 +180,7 @@ pnpm install
 | `src/config/dns.ts` | DNS（fake-ip、分流、China 解析器） | 按需 |
 | `src/config/pipeline.ts` | 上游规则源、远程分发基础地址 | 按需 |
 
-> **注意**：`src/config/proxies.ts` 必须填入你自己的代理节点，否则生成的配置中没有可用代理。
+> **关于 `proxies.ts`**：该文件默认留空，避免敏感信息泄露。请仅在本地填入真实节点，**不要提交到仓库**。如果启用 GitHub Actions，可通过 `PROXIES_TS` secret 在 CI 中注入（见下文）。
 
 ### 4. 本地构建
 
@@ -169,21 +215,73 @@ output/
 3. 配置仓库变量（可选）：
    - 进入 **Settings → Secrets and variables → Actions → Variables**
    - 添加 `PROVIDER_BASE_URL`（自定义 rule-provider 远程地址前缀，默认为本仓库地址）
-4. 工作流会自动在以下时机触发：
+4. 配置代理节点 secret（必须，否则 CI 构建的配置中没有可用代理）：
+   - 进入 **Settings → Secrets and variables → Actions → Secrets**
+   - 添加 `PROXIES_TS`，内容为完整的 `src/config/proxies.ts` 文件（包含 import 和 export）
+   - 示例 secret 内容见下文
+5. 工作流会自动在以下时机触发：
    - 每次 `push` 到 `main` 分支
-   - 每日 UTC 06:00 定时构建
+   - 每日 UTC 00:00 定时构建
 
 CI 构建流程：
-1. 拉取最新上游规则
-2. 构建所有配置变体
-3. 部署到 `release` 分支
-4. 创建/更新 Release，附带规则统计说明
+1. 注入 `PROXIES_TS` secret 覆写 `src/config/proxies.ts`
+2. 拉取最新上游规则
+3. 构建所有配置变体
+4. 部署到 `release` 分支
+5. 创建/更新 Release，附带规则统计说明
 
-### 环境变量
+### CI 环境变量与 Secrets
 
-| 变量 | 说明 | 默认值 |
-|------|------|--------|
-| `PROVIDER_BASE_URL` | rule-provider 远程 URL 的基础地址 | `https://raw.githubusercontent.com/<owner>/<repo>/release` |
+| 名称 | 类型 | 说明 | 默认值 |
+|------|------|------|--------|
+| `PROVIDER_BASE_URL` | Variable | rule-provider 远程 URL 的基础地址 | `https://raw.githubusercontent.com/<owner>/<repo>/release` |
+| `PROXIES_TS` | Secret | 完整的 `src/config/proxies.ts` 文件内容，CI 构建时注入 | 无（必须配置） |
+
+**`PROXIES_TS` secret 内容示例**：
+
+```typescript
+import type { Proxy, ProxyProvider } from '../mihomo/types'
+
+export const PROXIES = [
+  {
+    name: 'HK-01',
+    type: 'ss',
+    server: '1.2.3.4',
+    port: 8388,
+    cipher: 'aes-256-gcm',
+    password: 'your-password',
+    udp: true
+  },
+  {
+    name: 'SG-01',
+    type: 'ss',
+    server: '5.6.7.8',
+    port: 8388,
+    cipher: 'aes-256-gcm',
+    password: 'your-password',
+    udp: true
+  }
+] as const satisfies readonly Proxy[]
+
+export type ProxyName = (typeof PROXIES)[number]['name']
+
+export const PROXY_PROVIDERS: Record<string, ProxyProvider> = {
+  'Airport-Sub': {
+    type: 'http',
+    url: 'https://your-sub-url',
+    interval: 3600,
+    path: './proxy-providers/airport.yaml',
+    'health-check': {
+      enable: true,
+      url: 'http://www.gstatic.com/generate_204',
+      interval: 300
+    },
+    proxy: 'DIRECT'
+  }
+}
+```
+
+> 整个文件作为 secret 存储，直接写真实密码和订阅地址即可，无需 `${}` 占位符。
 
 ---
 
@@ -204,12 +302,15 @@ pnpm check
 
 ### 远程订阅（推荐）
 
-本项目支持通过 GitHub Actions 全自动发布。每次推送到 `main` 分支，或每日定时（UTC 06:00）会自动：
+本项目支持通过 GitHub Actions 全自动发布。每次推送到 `main` 分支，或每日定时（UTC 00:00）会自动：
 
-1. 拉取最新上游规则
-2. 构建所有配置变体
-3. 部署到 `release` 分支
-4. 创建或更新 Release，附带规则统计说明
+1. 注入 `PROXIES_TS` secret 覆写代理配置（如已配置）
+2. 拉取最新上游规则
+3. 构建所有配置变体
+4. 部署到 `release` 分支
+5. 创建或更新 Release，附带规则统计说明
+
+> **注意**：若未配置 `PROXIES_TS` secret，CI 发布的配置将不包含任何代理节点，仅适合作为规则集使用。
 
 订阅地址示例（请替换 `uyloal/aero` 为实际仓库）：
 
@@ -223,17 +324,19 @@ pnpm check
 
 所有配置集中在 `src/config/` 目录，修改后重新运行 `pnpm build` 即可生成新配置：
 
-| 文件 | 作用 |
-|------|------|
-| `src/config/proxies.ts` | 定义代理节点（SS / VMess / VLESS 等） |
-| `src/config/proxy-groups.ts` | 定义代理组（selector / url-test / fallback 等） |
-| `src/config/routing.ts` | 将类别映射到代理组（如 `ai → AI`） |
-| `src/config/rules.ts` | 手动规则（最高优先级和兜底规则） |
-| `src/config/base.ts` | 基础设置（端口、TUN、日志级别等） |
-| `src/config/dns.ts` | DNS 配置（fake-ip、分流、China 解析器等） |
-| `src/config/pipeline.ts` | 上游规则源配置及远程分发地址 |
-| `src/config/sniffer.ts` | 流量嗅探配置 |
-| `src/config/listeners.ts` | 入站监听器配置 |
+| 文件 | 作用 | 敏感 |
+|------|------|------|
+| `src/config/proxies.ts` | 定义代理节点（SS / VMess / VLESS 等） | 是（默认留空） |
+| `src/config/proxy-groups.ts` | 定义代理组（selector / url-test / fallback 等） | 否 |
+| `src/config/routing.ts` | 将类别映射到代理组（如 `ai → AI`） | 否 |
+| `src/config/rules.ts` | 手动规则（最高优先级和兜底规则） | 否 |
+| `src/config/base.ts` | 基础设置（端口、TUN、日志级别等） | 否 |
+| `src/config/dns.ts` | DNS 配置（fake-ip、分流、China 解析器等） | 否 |
+| `src/config/pipeline.ts` | 上游规则源配置及远程分发地址 | 否 |
+| `src/config/sniffer.ts` | 流量嗅探配置 | 否 |
+| `src/config/listeners.ts` | 入站监听器配置 | 否 |
+
+> **敏感文件处理**：`src/config/proxies.ts` 默认为空，避免密码和订阅地址泄露。本地使用时填入真实信息即可，无需提交。启用 GitHub Actions 时通过 `PROXIES_TS` secret 注入。
 
 ### 当前内置类别
 
