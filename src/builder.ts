@@ -122,13 +122,16 @@ export async function runBuilder(manifest: PipelineManifest, variant?: RemoteVar
   const baseUrl = variant?.url ?? 'https://raw.githubusercontent.com/OWNER/REPO/release/rules'
 
   const config = buildConfig(manifest, baseUrl)
-  const yaml = YAML.stringify(config)
-
-  const filename = suffix === 'raw' ? 'config.yaml' : `config-${suffix}.yaml`
-  await Bun.write(`${DIST_DIR}/${filename}`, yaml)
 
   const ruleCount = config.rules?.length ?? 0
   const providerCount = Object.keys(config['rule-providers'] ?? {}).length
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19)
+
+  const metadataHeader = `# NAME: mihomo-config\n# UPDATED: ${now}\n# TOTAL-RULES: ${ruleCount}\n# RULE-PROVIDERS: ${providerCount}\n\n`
+  const yaml = metadataHeader + YAML.stringify(config)
+
+  const filename = suffix === 'raw' ? 'config.yaml' : `config-${suffix}.yaml`
+  await Bun.write(`${DIST_DIR}/${filename}`, yaml)
 
   const manualCount = MANUAL_RULES_BEFORE.length + MANUAL_RULES_AFTER.length
   logger.success(`Builder 完成：${DIST_DIR}/${filename} 已生成（${baseUrl}）`)
