@@ -281,8 +281,6 @@ export const PROXY_PROVIDERS: Record<string, ProxyProvider> = {
 }
 ```
 
-> 整个文件作为 secret 存储，直接写真实密码和订阅地址即可，无需 `${}` 占位符。
-
 ---
 
 ## 使用方法
