@@ -76,7 +76,7 @@ export interface BaseProxy {
     | 'http'
     | 'socks5'
     | 'relay'
-    | 'selector'
+    | 'select'
     | 'url-test'
     | 'fallback'
     | 'load-balance'
@@ -323,8 +323,8 @@ export type Proxy =
   | Socks5Proxy
 
 export interface ProxyGroup extends BaseProxy {
-  type: 'relay' | 'selector' | 'url-test' | 'fallback' | 'load-balance'
-  proxies: string[]
+  type: 'relay' | 'select' | 'url-test' | 'fallback' | 'load-balance'
+  proxies?: string[]
   url?: string
   interval?: number
   tolerance?: number
@@ -338,8 +338,12 @@ export interface ProxyGroup extends BaseProxy {
   'include-all-proxies'?: boolean
   filter?: string
   'exclude-filter'?: string
+  'exclude-type'?: string
   'include-all-providers'?: boolean
   use?: string[]
+  icon?: string
+  default?: string
+  hidden?: boolean
 }
 
 export interface ProxyProvider {
