@@ -9,8 +9,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: deploy
@@ -21,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -35,11 +33,11 @@ jobs:
 
       - name: Build
         env:
-          PROVIDER_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/rules
+          GITHUB_REPO_SLUG: ${{ github.repository_owner }}/${{ github.event.repository.name }}
         run: bun run build
 
       - name: Deploy to release branch
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: release
