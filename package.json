@@ -1,5 +1,5 @@
 {
-  "name": "mihomo-generate",
+  "name": "aero",
   "version": "1.0.0",
   "description": "Generate mihomo rule-provider YAML files from upstream sources",
   "packageManager": "pnpm@11.1.1",
