@@ -1,6 +1,8 @@
 export interface Upstream {
   id: string
-  name: string
+  url: string
 }
 
-export interface RuleCategory {}
+export type RuleCategory = string
+
+export type PipelineConfig = Record<RuleCategory, Upstream[]>
