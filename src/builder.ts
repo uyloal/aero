@@ -175,7 +175,7 @@ function summarizeByCategory(manifest: PipelineManifest): string {
       const parts: string[] = []
       if (c.domain) parts.push(`${c.domain} 域名`)
       if (c.ip) parts.push(`${c.ip} IP`)
-      if (c.classical) parts.push(`${c.classical} 经典`)
+      if (c.classical) parts.push(`${c.classical} 复合`)
       return `- **${cat}**：${parts.join('，')}`
     })
     .join('\n')
@@ -196,15 +196,21 @@ export async function generateReleaseNotes(manifest: PipelineManifest, repoSlug:
   const runNumber = process.env.GITHUB_RUN_NUMBER ?? ''
   const serverUrl = process.env.GITHUB_SERVER_URL ?? 'https://github.com'
   const repository = process.env.GITHUB_REPOSITORY ?? repoSlug
-  const actor = process.env.GITHUB_ACTOR ?? '未知'
-
   const trigger = translateTrigger(eventName)
   const runLink = runId ? `${serverUrl}/${repository}/actions/runs/${runId}` : ''
   const commitLink = fullSha ? `${serverUrl}/${repository}/commit/${fullSha}` : ''
 
   const categorySummary = summarizeByCategory(manifest)
 
-  const content = `## 订阅地址
+  const content = `## 构建概览
+
+- **规则总数**：${totalRuleCount}（${generatedRuleCount} 自动生成 + ${manualCount} 自定义）
+- **规则集**：${providerCount} 个
+- **时间**：${now}
+- **触发**：${trigger}${eventName ? ` \`${eventName}\`` : ''}
+- **版本**：${commitLink ? `[${sha}](${commitLink})` : sha}${runLink && runNumber ? ` · [#${runNumber}](${runLink})` : ''}
+
+## 订阅地址
 
 在 Mihomo 客户端中导入以下任一地址：
 
@@ -218,14 +224,6 @@ export async function generateReleaseNotes(manifest: PipelineManifest, repoSlug:
 - \`https://gh-proxy.com/https://raw.githubusercontent.com/${repoSlug}/release/config.yaml\`
 
 > 若 GitHub 原始地址无法访问，优先使用 **jsDelivr** 或国内加速镜像节点。
-
-## 构建概览
-
-- **规则总数**：${totalRuleCount}（${generatedRuleCount} 自动生成 + ${manualCount} 手动）
-- **规则集**：${providerCount} 个
-- **时间**：${now}
-- **触发**：${trigger}${eventName ? ` \`${eventName}\`` : ''}
-- **版本**：${commitLink ? `[${sha}](${commitLink})` : sha}${actor ? ` · ${actor}` : ''}${runLink && runNumber ? ` · [#${runNumber}](${runLink})` : ''}
 
 ## 规则分类
 
