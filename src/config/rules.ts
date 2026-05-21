@@ -23,6 +23,10 @@ export const MANUAL_RULES_BEFORE: readonly ManualRule<TargetName>[] = [
   'DST-PORT,9418,DIRECT',
 
   // Tailscale / Headscale 内网直连
+  'SRC-PORT,41641,DIRECT',
+  'SRC-PORT,3478,DIRECT',
+  'DST-PORT,41641,DIRECT',
+  'DST-PORT,3478,DIRECT',
   'DOMAIN-KEYWORD,headscale,DIRECT',
   'DOMAIN-SUFFIX,tailscale.com,DIRECT',
   'DOMAIN-SUFFIX,ts.net,DIRECT',
