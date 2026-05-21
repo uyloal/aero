@@ -175,7 +175,7 @@ function summarizeByCategory(manifest: PipelineManifest): string {
       const parts: string[] = []
       if (c.domain) parts.push(`${c.domain} 域名`)
       if (c.ip) parts.push(`${c.ip} IP`)
-      if (c.classical) parts.push(`${c.classical} 复合`)
+      if (c.classical) parts.push(`${c.classical} 混合`)
       return `- **${cat}**：${parts.join('，')}`
     })
     .join('\n')
