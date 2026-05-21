@@ -2,40 +2,50 @@ import type { PipelineConfig } from './types'
 
 const BLACKMATRIX7_BASE = 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash'
 
-function bm7(path: string): string {
-  return `${BLACKMATRIX7_BASE}/${path}/${path}.yaml`
+function bm7(path: string, file?: string): string {
+  return `${BLACKMATRIX7_BASE}/${path}/${file ?? path}.yaml`
 }
 
+// 分组说明：
+// - ai       : AI 服务分流（ChatGPT、Claude 等）
+// - proxy    : 通用代理（Proxy、ProxyLite、GlobalMedia 等）
+// - direct   : 直连/DIRECT（中国境内、局域网、DNS 等）
+// - sg       : 新加坡地区分流
+// - us       : 美国地区分流
+// - eu       : 欧洲地区分流
 export const PIPELINE_CONFIG: PipelineConfig = {
   ai: [
-    { id: 'github-ai', url: bm7('OpenAI') },
-    { id: 'github-ai-extra', url: bm7('OpenAIPlus') }
+    { id: 'bm7-openai', url: bm7('OpenAI') },
+    { id: 'bm7-anthropic', url: bm7('Anthropic') },
+    { id: 'bm7-claude', url: bm7('Claude') },
+    { id: 'bm7-bard-ai', url: bm7('BardAI') },
+    { id: 'bm7-civitai', url: bm7('Civitai') },
+    { id: 'bm7-gemini', url: bm7('Gemini') }
   ],
-  google: [
-    { id: 'github-google', url: bm7('Google') },
-    { id: 'github-google-cn', url: bm7('GoogleCN') }
+  proxy: [
+    { id: 'bm7-proxy', url: bm7('Proxy') },
+    { id: 'bm7-proxy-lite', url: bm7('ProxyLite') },
+    { id: 'bm7-global-media', url: bm7('GlobalMedia') }
   ],
-  microsoft: [{ id: 'github-microsoft', url: bm7('Microsoft') }],
-  github: [{ id: 'github-github', url: bm7('GitHub') }],
-  telegram: [{ id: 'github-telegram', url: bm7('Telegram') }],
-  twitter: [{ id: 'github-twitter', url: bm7('Twitter') }],
-  youtube: [{ id: 'github-youtube', url: bm7('YouTube') }],
-  netflix: [{ id: 'github-netflix', url: bm7('Netflix') }],
-  disney: [{ id: 'github-disney', url: bm7('Disney') }],
-  apple: [
-    { id: 'github-apple', url: bm7('Apple') },
-    { id: 'github-icloud', url: bm7('iCloud') }
+  direct: [
+    { id: 'bm7-direct', url: bm7('Direct') },
+    { id: 'bm7-lan', url: bm7('Lan') },
+    { id: 'bm7-china', url: bm7('China') },
+    { id: 'bm7-china-test', url: bm7('ChinaTest') },
+    { id: 'bm7-china-ips', url: bm7('ChinaIPs', 'ChinaIPs_Classical') },
+    { id: 'bm7-china-ips-bgp', url: bm7('ChinaIPsBGP', 'ChinaIPsBGP_Classical') },
+    { id: 'bm7-china-max', url: bm7('ChinaMax') },
+    { id: 'bm7-china-max-no-ip', url: bm7('ChinaMaxNoIP') },
+    { id: 'bm7-china-no-media', url: bm7('ChinaNoMedia') },
+    { id: 'bm7-gov-cn', url: bm7('GovCN') },
+    { id: 'bm7-china-dns', url: bm7('ChinaDNS') }
   ],
-  adobe: [{ id: 'github-adobe', url: bm7('Adobe') }],
-  amazon: [{ id: 'github-amazon', url: bm7('Amazon') }],
-  steam: [{ id: 'github-steam', url: bm7('Steam') }],
-  epic: [{ id: 'github-epic', url: bm7('Epic') }],
-  tiktok: [{ id: 'github-tiktok', url: bm7('TikTok') }],
-  spotify: [{ id: 'github-spotify', url: bm7('Spotify') }],
-  discord: [{ id: 'github-discord', url: bm7('Discord') }],
-  docker: [{ id: 'github-docker', url: bm7('Docker') }],
-  notion: [{ id: 'github-notion', url: bm7('Notion') }],
-  slack: [{ id: 'github-slack', url: bm7('Slack') }],
-  zoom: [{ id: 'github-zoom', url: bm7('Zoom') }],
-  speedtest: [{ id: 'github-speedtest', url: bm7('Speedtest') }]
+  sg: [{ id: 'bm7-telegram-sg', url: bm7('TelegramSG') }],
+  us: [
+    { id: 'bm7-telegram-us', url: bm7('TelegramUS') },
+    { id: 'bm7-hbo-usa', url: bm7('HBOUSA') },
+    { id: 'bm7-hulu-usa', url: bm7('HuluUSA') },
+    { id: 'bm7-us-media', url: bm7('USMedia') }
+  ],
+  eu: [{ id: 'bm7-telegram-nl', url: bm7('TelegramNL') }]
 }
