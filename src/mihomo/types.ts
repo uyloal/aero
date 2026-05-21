@@ -103,7 +103,7 @@ export interface SmuxConfig {
   }
 }
 
-export interface ProxyNodeBase {
+export interface ProxyNodeBase<DialerProxy extends string = string> {
   name: string
   server: string
   port: number
@@ -113,7 +113,7 @@ export interface ProxyNodeBase {
   'routing-mark'?: number
   tfo?: boolean
   mptcp?: boolean
-  'dialer-proxy'?: string
+  'dialer-proxy'?: DialerProxy
   smux?: SmuxConfig
 }
 
@@ -147,7 +147,7 @@ export interface WsOpts {
   'v2ray-http-upgrade-fast-open'?: boolean
 }
 
-export interface ShadowsocksProxy extends ProxyNodeBase {
+export interface ShadowsocksProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy> {
   type: 'ss'
   cipher: string
   password: string
@@ -157,7 +157,7 @@ export interface ShadowsocksProxy extends ProxyNodeBase {
   'plugin-opts'?: Record<string, unknown>
 }
 
-export interface ShadowsocksRProxy extends ProxyNodeBase {
+export interface ShadowsocksRProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy> {
   type: 'ssr'
   cipher: string
   password: string
@@ -167,7 +167,7 @@ export interface ShadowsocksRProxy extends ProxyNodeBase {
   'obfs-param'?: string
 }
 
-export interface VmessProxy extends ProxyNodeBase, TlsFields {
+export interface VmessProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy>, TlsFields {
   type: 'vmess'
   uuid: string
   alterId: number
@@ -182,7 +182,7 @@ export interface VmessProxy extends ProxyNodeBase, TlsFields {
   'http-opts'?: { method?: string; path?: string[]; headers?: Record<string, string[]> }
 }
 
-export interface VlessProxy extends ProxyNodeBase, TlsFields {
+export interface VlessProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy>, TlsFields {
   type: 'vless'
   uuid: string
   flow?: 'xtls-rprx-vision'
@@ -195,7 +195,7 @@ export interface VlessProxy extends ProxyNodeBase, TlsFields {
   'xhttp-opts'?: Record<string, unknown>
 }
 
-export interface TrojanProxy extends ProxyNodeBase, TlsFields {
+export interface TrojanProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy>, TlsFields {
   type: 'trojan'
   password: string
   'ss-opts'?: { enabled?: boolean; method?: string; password?: string }
@@ -204,7 +204,7 @@ export interface TrojanProxy extends ProxyNodeBase, TlsFields {
   'grpc-opts'?: { 'grpc-service-name'?: string }
 }
 
-export interface HysteriaProxy extends ProxyNodeBase {
+export interface HysteriaProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy> {
   type: 'hysteria'
   protocol?: 'udp' | 'wechat-video' | 'faketcp'
   up: string | number
@@ -223,7 +223,7 @@ export interface HysteriaProxy extends ProxyNodeBase {
   fingerprint?: string
 }
 
-export interface Hysteria2Proxy extends ProxyNodeBase, TlsFields {
+export interface Hysteria2Proxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy>, TlsFields {
   type: 'hysteria2'
   ports?: string
   'hop-interval'?: number
@@ -234,7 +234,7 @@ export interface Hysteria2Proxy extends ProxyNodeBase, TlsFields {
   'obfs-password'?: string
 }
 
-export interface TuicProxy extends ProxyNodeBase {
+export interface TuicProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy> {
   type: 'tuic'
   uuid: string
   password?: string
@@ -260,7 +260,8 @@ export interface WireguardPeer {
   reserved?: string | number[]
 }
 
-export interface WireguardProxy extends Omit<ProxyNodeBase, 'server' | 'port'> {
+export interface WireguardProxy<DialerProxy extends string = string>
+  extends Omit<ProxyNodeBase<DialerProxy>, 'server' | 'port'> {
   type: 'wireguard'
   server?: string
   port?: number
@@ -278,27 +279,28 @@ export interface WireguardProxy extends Omit<ProxyNodeBase, 'server' | 'port'> {
   dns?: string[]
 }
 
-export interface ShadowtlsProxy extends ProxyNodeBase {
+export interface ShadowtlsProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy> {
   type: 'shadowtls'
   'shadow-tls-version'?: number
   password?: string
   detour?: string
 }
 
-export interface DirectProxy extends Omit<ProxyNodeBase, 'server' | 'port'> {
+export interface DirectProxy<DialerProxy extends string = string>
+  extends Omit<ProxyNodeBase<DialerProxy>, 'server' | 'port'> {
   type: 'direct'
   server?: string
   port?: number
 }
 
-export interface HttpProxy extends ProxyNodeBase, TlsFields {
+export interface HttpProxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy>, TlsFields {
   type: 'http'
   username?: string
   password?: string
   headers?: Record<string, string>
 }
 
-export interface Socks5Proxy extends ProxyNodeBase, TlsFields {
+export interface Socks5Proxy<DialerProxy extends string = string> extends ProxyNodeBase<DialerProxy>, TlsFields {
   type: 'socks5'
   username?: string
   password?: string
@@ -307,20 +309,20 @@ export interface Socks5Proxy extends ProxyNodeBase, TlsFields {
 /**
  * 代理节点联合类型 — 所有具体代理类型的并集
  */
-export type Proxy =
-  | ShadowsocksProxy
-  | ShadowsocksRProxy
-  | VmessProxy
-  | VlessProxy
-  | TrojanProxy
-  | HysteriaProxy
-  | Hysteria2Proxy
-  | TuicProxy
-  | WireguardProxy
-  | ShadowtlsProxy
-  | DirectProxy
-  | HttpProxy
-  | Socks5Proxy
+export type Proxy<DialerProxy extends string = string> =
+  | ShadowsocksProxy<DialerProxy>
+  | ShadowsocksRProxy<DialerProxy>
+  | VmessProxy<DialerProxy>
+  | VlessProxy<DialerProxy>
+  | TrojanProxy<DialerProxy>
+  | HysteriaProxy<DialerProxy>
+  | Hysteria2Proxy<DialerProxy>
+  | TuicProxy<DialerProxy>
+  | WireguardProxy<DialerProxy>
+  | ShadowtlsProxy<DialerProxy>
+  | DirectProxy<DialerProxy>
+  | HttpProxy<DialerProxy>
+  | Socks5Proxy<DialerProxy>
 
 export interface ProxyGroup extends BaseProxy {
   type: 'relay' | 'select' | 'url-test' | 'fallback' | 'load-balance'
