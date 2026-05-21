@@ -25,6 +25,17 @@ export function compileCategory(results: DemotedResult[]): CompiledResult {
   }
 }
 
-export function serializeYaml(items: string[]): string {
-  return YAML.stringify({ payload: items })
+export interface YamlMetadata {
+  name: string
+  updated: string
+  total: number
+}
+
+function formatMetadata(metadata: YamlMetadata): string {
+  return `# NAME: ${metadata.name}\n# UPDATED: ${metadata.updated}\n# TOTAL: ${metadata.total}\n\n`
+}
+
+export function serializeYaml(items: string[], metadata?: YamlMetadata): string {
+  const header = metadata ? formatMetadata(metadata) : ''
+  return header + YAML.stringify({ payload: items })
 }

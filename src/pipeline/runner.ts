@@ -6,6 +6,7 @@ import { fetchSource } from './fetcher'
 import { validatePayload } from './validator'
 import { demoteRules } from './demoter'
 import { compileCategory, serializeYaml } from './compiler'
+import type { YamlMetadata } from './compiler'
 import type { DemoteType } from '../mihomo/types'
 
 const OUTPUT_DIR = 'output/rules'
@@ -112,8 +113,15 @@ async function processCategory(
   let files = 0
   const manifest: CategoryManifestEntry[] = []
 
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19)
+
+  function makeMeta(name: string, total: number): YamlMetadata {
+    return { name, updated: now, total }
+  }
+
   if (compiled.domains.length > 0) {
-    await Bun.write(`${OUTPUT_DIR}/${category}-domain.yaml`, serializeYaml(compiled.domains))
+    const meta = makeMeta(`${category}-domain`, compiled.domains.length)
+    await Bun.write(`${OUTPUT_DIR}/${category}-domain.yaml`, serializeYaml(compiled.domains, meta))
     files++
     manifest.push({
       category,
@@ -123,7 +131,8 @@ async function processCategory(
     })
   }
   if (compiled.ips.length > 0) {
-    await Bun.write(`${OUTPUT_DIR}/${category}-ip.yaml`, serializeYaml(compiled.ips))
+    const meta = makeMeta(`${category}-ip`, compiled.ips.length)
+    await Bun.write(`${OUTPUT_DIR}/${category}-ip.yaml`, serializeYaml(compiled.ips, meta))
     files++
     manifest.push({
       category,
@@ -133,7 +142,8 @@ async function processCategory(
     })
   }
   if (compiled.classical.length > 0) {
-    await Bun.write(`${OUTPUT_DIR}/${category}-classical.yaml`, serializeYaml(compiled.classical))
+    const meta = makeMeta(`${category}-classical`, compiled.classical.length)
+    await Bun.write(`${OUTPUT_DIR}/${category}-classical.yaml`, serializeYaml(compiled.classical, meta))
     files++
     manifest.push({
       category,
