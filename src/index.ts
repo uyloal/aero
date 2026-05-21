@@ -1,5 +1,5 @@
 import { runPipeline } from './pipeline/runner'
-import { runBuilder } from './builder'
+import { runBuilder, generateReleaseNotes } from './builder'
 import { REMOTE_VARIANTS } from './config/pipeline'
 import { logger } from './core/logger'
 
@@ -17,6 +17,10 @@ async function main(): Promise<void> {
   for (const variant of REMOTE_VARIANTS) {
     await runBuilder(manifest, variant)
   }
+
+  // Phase 3: Release notes — 生成 GitHub Release 说明
+  const repoSlug = process.env.GITHUB_REPO_SLUG || 'OWNER/REPO'
+  await generateReleaseNotes(manifest, repoSlug)
 }
 
 main().catch((error) => {
