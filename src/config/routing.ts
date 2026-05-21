@@ -18,10 +18,10 @@ export type RoutingMap = Record<Category, TargetName>
  * 每个分类对应到一个已定义的策略组或代理节点。
  */
 export const ROUTING_MAP: RoutingMap = {
-  ai: '🤖 AI 服务',
-  proxy: '🚀 节点选择',
-  direct: '🌐 全球直连',
-  sg: '📲 电报消息',
-  us: '🇺🇸 美国节点',
-  eu: '🚀 节点选择'
+  ai: 'AI 服务',
+  proxy: '选择代理',
+  direct: '自动直连',
+  sg: 'SG 新加坡',
+  us: 'US 美国',
+  eu: 'EU 欧洲'
 }

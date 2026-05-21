@@ -34,5 +34,5 @@ export const MANUAL_RULES_BEFORE: readonly ManualRule<TargetName>[] = [
 export const MANUAL_RULES_AFTER: readonly ManualRule<TargetName>[] = [
   'GEOIP,private,DIRECT,no-resolve',
   'GEOIP,cn,DIRECT,no-resolve',
-  'MATCH,🐟 漏网之鱼'
+  'MATCH,自动直连'
 ] as const
