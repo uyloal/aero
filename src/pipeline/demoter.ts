@@ -13,7 +13,7 @@ function normalizeDomainSuffix(value: string): string {
   return `+.${value}`
 }
 
-export function demoteRules(payload: string[]): DemotedResult {
+export function demoteRules(payload: readonly string[]): DemotedResult {
   const domains = new Set<string>()
   const ips = new Set<string>()
   const classical = new Set<string>()

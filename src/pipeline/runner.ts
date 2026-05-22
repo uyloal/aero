@@ -1,6 +1,6 @@
 import { $ } from 'bun'
 import { PIPELINE_CONFIG } from '../config/pipeline'
-import type { Category } from '../config/pipeline'
+import type { Category, CategoryConfig } from '../config/pipeline'
 import { logger, link } from '../core/logger'
 import { fetchSource } from './fetcher'
 import { validatePayload } from './validator'
@@ -64,8 +64,10 @@ interface CategoryStats {
 
 async function processCategory(
   category: Category,
-  sources: readonly { id: string; url: string }[]
+  config: CategoryConfig
 ): Promise<{ stats: CategoryStats; manifest: CategoryManifestEntry[] }> {
+  const { sources, customRules } = config
+
   logger.log(categoryHeader(category))
   logger.log('')
 
@@ -88,6 +90,10 @@ async function processCategory(
     } else {
       logger.warn(`来源 ${link(source.id, source.url)} 拉取失败：${formatError(result.reason)}`)
     }
+  }
+
+  if (customRules && customRules.length > 0) {
+    results.push(demoteRules(customRules))
   }
 
   if (results.length === 0) {
@@ -250,8 +256,8 @@ export async function runPipeline(): Promise<PipelineManifest> {
   const entries: CategoryManifestEntry[] = []
   const stats: CategoryStats[] = []
 
-  for (const [category, sources] of Object.entries(PIPELINE_CONFIG)) {
-    const result = await processCategory(category as Category, sources)
+  for (const [category, config] of Object.entries(PIPELINE_CONFIG)) {
+    const result = await processCategory(category as Category, config)
     stats.push(result.stats)
     entries.push(...result.manifest)
   }
