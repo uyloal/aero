@@ -42,6 +42,43 @@ export const RULE_TYPES = [
 
 export type RuleType = (typeof RULE_TYPES)[number]
 
+// ---------------------------------------------------------------------------
+// Pipeline 可用规则类型（排除本地环境型规则，这些不应出现在订阅规则集中）
+// ---------------------------------------------------------------------------
+export const PIPELINE_RULE_TYPES = [
+  'DOMAIN',
+  'DOMAIN-SUFFIX',
+  'DOMAIN-KEYWORD',
+  'DOMAIN-WILDCARD',
+  'DOMAIN-REGEX',
+  'GEOSITE',
+  'IP-CIDR',
+  'IP-CIDR6',
+  'IP-SUFFIX',
+  'IP-ASN',
+  'GEOIP',
+  'SRC-GEOIP',
+  'SRC-IP-ASN',
+  'SRC-IP-CIDR',
+  'SRC-IP-SUFFIX',
+  'DST-PORT',
+  'SRC-PORT',
+  'IN-PORT',
+  'IN-TYPE',
+  'IN-USER',
+  'IN-NAME',
+  'NETWORK',
+  'DSCP',
+  'AND',
+  'OR',
+  'NOT',
+  'MATCH'
+] as const satisfies RuleType[]
+
+export type PipelineRuleType = (typeof PIPELINE_RULE_TYPES)[number]
+
+export type InlineRule = `${PipelineRuleType},${string}`
+
 export interface ParsedRule {
   type: RuleType
   value: string
