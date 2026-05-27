@@ -3,6 +3,7 @@ import type { InlineRule } from '../mihomo/types'
 export interface Upstream {
   id: string
   url: string
+  format?: 'yaml' | 'list'
 }
 
 export interface CategoryConfig {
@@ -72,7 +73,12 @@ export const PIPELINE_CONFIG = {
       { id: 'bm7-cloudflare', url: bm7('Cloudflare') },
       { id: 'bm7-speedtest', url: bm7('Speedtest') },
       { id: 'bm7-wikipedia', url: bm7('Wikipedia') },
-      { id: 'bm7-tiktok', url: bm7('TikTok') }
+      { id: 'bm7-tiktok', url: bm7('TikTok') },
+      {
+        id: 'apns',
+        url: 'https://raw.githubusercontent.com/QuixoticHeart/rule-set/refs/heads/ruleset/meta/apns.list',
+        format: 'list'
+      }
     ]
   },
   direct: {

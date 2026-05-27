@@ -33,9 +33,6 @@ export const MANUAL_RULES_BEFORE: readonly ManualRule<TargetName>[] = [
   'DOMAIN-SUFFIX,tailscale.io,DIRECT',
   'IP-CIDR,100.64.0.0/10,DIRECT,no-resolve',
   'IP-CIDR6,fd7a:115c:a1e0::/48,DIRECT,no-resolve',
-
-  // APNS (Apple Push Notification Service)
-  'DOMAIN-SUFFIX,push.apple.com,自动选择'
 ] as const
 
 /**
