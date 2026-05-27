@@ -3,7 +3,7 @@ import { PIPELINE_CONFIG } from '../config/pipeline'
 import type { Category, CategoryConfig } from '../config/pipeline'
 import { logger, link } from '../core/logger'
 import { fetchSource } from './fetcher'
-import { validatePayload } from './validator'
+import { parsePayload } from './validator'
 import { demoteRules } from './demoter'
 import { compileCategory, serializeYaml } from './compiler'
 import type { YamlMetadata } from './compiler'
@@ -74,7 +74,7 @@ async function processCategory(
   const settled = await Promise.allSettled(
     sources.map(async (source) => {
       const raw = await fetchSource(source.url)
-      const payload = validatePayload(raw)
+      const payload = parsePayload(raw, source.format)
       return demoteRules(payload)
     })
   )

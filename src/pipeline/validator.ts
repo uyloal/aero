@@ -5,8 +5,15 @@ const PayloadSchema = v.object({
   payload: v.array(v.string())
 })
 
-export function validatePayload(rawYaml: string): string[] {
-  const parsed = YAML.parse(rawYaml)
+export function parsePayload(raw: string, format: 'yaml' | 'list' = 'yaml'): string[] {
+  if (format === 'list') {
+    return raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('#'))
+  }
+
+  const parsed = YAML.parse(raw)
   const result = v.safeParse(PayloadSchema, parsed)
 
   if (!result.success) {
