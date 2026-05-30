@@ -1,0 +1,479 @@
+# NAME: mihomo-config
+# UPDATED: 2026-05-30 02:55:21
+# TOTAL-RULES: 37
+# RULE-PROVIDERS: 13
+
+mixed-port: 7890
+allow-lan: true
+bind-address: "*"
+find-process-mode: strict
+unified-delay: true
+tcp-concurrent: true
+log-level: warning
+ipv6: true
+global-client-fingerprint: chrome
+external-controller: 127.0.0.1:9090
+profile:
+  store-selected: true
+  store-fake-ip: true
+tun:
+  enable: false
+  stack: mixed
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+  auto-route: true
+  auto-detect-interface: true
+  auto-redirect: false
+  strict-route: false
+  device: utun111
+  route-exclude-address:
+    - 100.64.0.0/10
+geodata-mode: true
+geodata-loader: memconservative
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat
+  geosite: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat
+  mmdb: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb
+  asn: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb
+keep-alive-idle: 600
+keep-alive-interval: 15
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  cache-algorithm: arc
+  respect-rules: true
+  fake-ip-filter:
+    - "*.lan"
+    - "*.localdomain"
+    - "*.example"
+    - "*.localhost"
+    - "*.local"
+    - "*.home.arpa"
+    - time.*.com
+    - time.*.gov
+    - time.*.edu.cn
+    - time.*.apple.com
+    - time-ios.apple.com
+    - time1.*.com
+    - time2.*.com
+    - time3.*.com
+    - time4.*.com
+    - time5.*.com
+    - time6.*.com
+    - time7.*.com
+    - ntp.*.com
+    - ntp1.*.com
+    - ntp2.*.com
+    - ntp3.*.com
+    - ntp4.*.com
+    - ntp5.*.com
+    - ntp6.*.com
+    - ntp7.*.com
+    - "*.time.edu.cn"
+    - "*.ntp.org.cn"
+    - +.pool.ntp.org
+    - msftconnecttest.com
+    - msftncsi.com
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+    - localhost.ptlogin2.qq.com
+    - "*.id.qq.com"
+    - "*.ptlogin2.qq.com"
+    - captive.apple.com
+    - gsp1.apple.com
+    - www.apple.com
+    - www.apple.com.cn
+    - detectportal.firefox.com
+    - connectivitycheck.gstatic.com
+    - connectivitycheck.android.com
+    - clients3.google.com
+    - clients4.google.com
+    - connectivitycheck.cbg-dev-mx-apple.com
+    - wifi.vivo.com.cn
+    - wifi.miwifi.com
+    - www.gstatic.com
+    - +.stun.*
+    - +.stun.*.*
+    - +.stun.*.*.*
+    - +.stun.*.*.*.*
+    - +.srv.nintendo.net
+    - +.stun.playstation.net
+    - xbox.*.microsoft.com
+    - +.xboxlive.com
+    - +.mcdn.xboxlive.cn
+    - +.sgmdb.cdn.xboxlive.cn
+    - +.bnet.163.com
+    - 0.0.0.0/8
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 127.0.0.0/8
+    - 169.254.0.0/16
+    - 172.16.0.0/12
+    - 192.0.0.0/24
+    - 192.0.2.0/24
+    - 192.88.99.0/24
+    - 192.168.0.0/16
+    - 198.18.0.0/15
+    - 198.51.100.0/24
+    - 203.0.113.0/24
+    - 224.0.0.0/4
+    - 240.0.0.0/4
+    - 255.255.255.255/32
+    - "*.ts.net"
+    - "*.tailscale.com"
+    - "*.tailscale.io"
+    - ::/128
+    - ::1/128
+    - ::ffff:0:0/96
+    - ::ffff:0:0:0/96
+    - 64:ff9b::/96
+    - 100::/64
+    - 2001::/32
+    - 2001:20::/28
+    - 2001:db8::/32
+    - 2002::/16
+    - fc00::/7
+    - fe80::/10
+    - ff00::/8
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 2400:3200::1
+    - 2400:3200:baba::1
+    - "2402:4e00::"
+    - "2402:4e00:1::"
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+    - tcp://[2400:3200::1]:53
+    - tcp://[2400:3200:baba::1]:53
+    - tcp://[2402:4e00::]:53
+    - tcp://[2402:4e00:1::]:53
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+    - tcp://[2400:3200::1]:53
+    - tcp://[2400:3200:baba::1]:53
+    - tcp://[2402:4e00::]:53
+    - tcp://[2402:4e00:1::]:53
+  nameserver-policy:
+    geosite:cn:
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+    geosite:private:
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+    +.google.com: https://dns.google/dns-query
+    +.youtube.com: https://dns.google/dns-query
+    +.twitter.com: https://dns.google/dns-query
+    +.x.com: https://dns.google/dns-query
+    +.github.com: https://dns.google/dns-query
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+    - tls://1.1.1.1:853
+    - https://[2606:4700:4700::1111]/dns-query
+    - https://[2001:4860:4860::8888]/dns-query
+    - tls://[2606:4700:4700::1111]:853
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
+    ipcidr:
+      - 240.0.0.0/4
+      - 0.0.0.0/32
+      - 127.0.0.1/32
+    domain:
+      - +.google.com
+      - +.facebook.com
+      - +.youtube.com
+      - +.twitter.com
+      - +.x.com
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports:
+        - 80
+        - 8080
+        - 8880
+      override-destination: true
+    TLS:
+      ports:
+        - 443
+        - 8443
+    QUIC:
+      ports:
+        - 443
+        - 8443
+  force-domain:
+    - +.v2ex.com
+    - +.netflix.com
+    - +.nflxvideo.net
+    - +.amazonaws.com
+    - +.media.dssott.com
+    - +.hbo.com
+    - +.hbomaxcdn.com
+    - +.tiktok.com
+  skip-domain:
+    - +.apple.com
+    - +.push.apple.com
+    - Mijia Cloud
+    - dlg.io.mi.com
+    - +.oray.com
+    - +.sunlogin.net
+    - +.crashlytics.com
+    - +.tailscale.io
+listeners:
+  - name: mixed-in
+    type: mixed
+    port: 7890
+    listen: 0.0.0.0
+proxies: []
+proxy-groups:
+  - name: 选择代理
+    type: select
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
+    include-all: true
+    default: 自动选择
+  - name: 自动选择
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Speedtest.png
+    include-all: true
+    filter: ^(?!.*(?i:Relay)).*$
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+    timeout: 5000
+  - name: 故障转移
+    type: fallback
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png
+    proxies:
+      - 自动选择
+    include-all: true
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: true
+    timeout: 5000
+  - name: HK 香港
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
+    include-all: true
+    filter: 🇭🇰|HK|Hong|hong|香港|深港|沪港|京港|港
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: TW 台湾
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/China.png
+    include-all: true
+    filter: 🇹🇼|TW|TWN|Taiwan|Taipei|taiwan|台湾|台灣|台北|台中|新北|彰化
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: JP 日本
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
+    include-all: true
+    filter: 🇯🇵|JP|Japan|japan|Tokyo|tokyo|日本|东京|大阪|京日|苏日|沪日|上日|川日|深日|广日|日
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: SG 新加坡
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
+    include-all: true
+    filter: 🇸🇬|SG|Sing|sing|新加坡|狮城|沪新|京新|深新|杭新|广新
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: KR 韩国
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png
+    include-all: true
+    filter: 🇰🇷|KR|Korea|korea|KOR|韩国|首尔|韩|韓|春川
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: US 美国
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
+    include-all: true
+    filter: 🇺🇸|US|USA|America|america|United States|美国|凤凰城|洛杉矶|西雅图|芝加哥|纽约|沪美|美
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: SA 南美
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Brazil.png
+    include-all: true
+    filter: 🇧🇷|🇦🇷|🇨🇱|🇵🇪|🇨🇴|🇺🇾|BR|AR|CL|PE|CO|UY|Brazil|brazil|Argentina|argentina|Chile|chile|Peru|peru|Colombia|colombia|Uruguay|uruguay|巴西|阿根廷|智利|秘鲁|哥伦比亚|乌拉圭|圣保罗|里约|布宜诺斯艾利斯|圣地亚哥|南美
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: EU 欧洲
+    type: url-test
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_Nations.png
+    include-all: true
+    filter: (?i)(🇬🇧|🇩🇪|🇫🇷|🇮🇹|🇪🇸|🇳🇱|🇧🇪|🇦🇹|🇨🇭|🇸🇪|🇳🇴|🇩🇰|🇫🇮|🇮🇪|🇵🇹|🇵🇱|uk|de|fr|it|es|nl|be|at|ch|se|no|dk|fi|ie|pt|pl|eu|europe|england|britain|germany|france|italy|spain|netherlands|belgium|austria|switzerland|sweden|norway|denmark|finland|ireland|portugal|poland|英国|德国|法国|意大利|西班牙|荷兰|比利时|奥地利|瑞士|瑞典|挪威|丹麦|芬兰|爱尔兰|葡萄牙|波兰|英|德|法|意|荷|比|奥|瑞|挪|丹|芬|爱|葡|波)
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 0
+    timeout: 5000
+  - name: AI 服务
+    type: select
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png
+    proxies:
+      - 选择代理
+      - 自动选择
+      - 故障转移
+      - HK 香港
+      - TW 台湾
+      - JP 日本
+      - SG 新加坡
+      - KR 韩国
+      - US 美国
+      - EU 欧洲
+      - SA 南美
+    default: 选择代理
+  - name: 自动直连
+    type: select
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png
+    proxies:
+      - DIRECT
+      - 选择代理
+    default: DIRECT
+proxy-providers: {}
+rule-providers:
+  ai-domain:
+    type: http
+    behavior: domain
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/ai-domain.yaml
+    path: ./rule-providers/ai-domain.yaml
+    interval: 86400
+  ai-ip:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/ai-ip.yaml
+    path: ./rule-providers/ai-ip.yaml
+    interval: 86400
+  ai-classical:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/ai-classical.yaml
+    path: ./rule-providers/ai-classical.yaml
+    interval: 86400
+  proxy-domain:
+    type: http
+    behavior: domain
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/proxy-domain.yaml
+    path: ./rule-providers/proxy-domain.yaml
+    interval: 86400
+  proxy-ip:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/proxy-ip.yaml
+    path: ./rule-providers/proxy-ip.yaml
+    interval: 86400
+  proxy-classical:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/proxy-classical.yaml
+    path: ./rule-providers/proxy-classical.yaml
+    interval: 86400
+  direct-domain:
+    type: http
+    behavior: domain
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/direct-domain.yaml
+    path: ./rule-providers/direct-domain.yaml
+    interval: 86400
+  direct-ip:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/direct-ip.yaml
+    path: ./rule-providers/direct-ip.yaml
+    interval: 86400
+  direct-classical:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/direct-classical.yaml
+    path: ./rule-providers/direct-classical.yaml
+    interval: 86400
+  sg-ip:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/sg-ip.yaml
+    path: ./rule-providers/sg-ip.yaml
+    interval: 86400
+  us-domain:
+    type: http
+    behavior: domain
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/us-domain.yaml
+    path: ./rule-providers/us-domain.yaml
+    interval: 86400
+  us-ip:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/us-ip.yaml
+    path: ./rule-providers/us-ip.yaml
+    interval: 86400
+  eu-ip:
+    type: http
+    behavior: ipcidr
+    url: https://raw.githubusercontent.com/uyloal/aero/release/rules/eu-ip.yaml
+    path: ./rule-providers/eu-ip.yaml
+    interval: 86400
+rules:
+  - DST-PORT,22,DIRECT
+  - DST-PORT,23,DIRECT
+  - DST-PORT,143,DIRECT
+  - DST-PORT,465,DIRECT
+  - DST-PORT,587,DIRECT
+  - DST-PORT,993,DIRECT
+  - DST-PORT,995,DIRECT
+  - DST-PORT,3389,DIRECT
+  - DST-PORT,5900,DIRECT
+  - DST-PORT,6443,DIRECT
+  - DST-PORT,9418,DIRECT
+  - SRC-PORT,41641,DIRECT
+  - SRC-PORT,3478,DIRECT
+  - DST-PORT,41641,DIRECT
+  - DST-PORT,3478,DIRECT
+  - DOMAIN-KEYWORD,headscale,DIRECT
+  - DOMAIN-SUFFIX,tailscale.com,DIRECT
+  - DOMAIN-SUFFIX,ts.net,DIRECT
+  - DOMAIN-SUFFIX,tailscale.io,DIRECT
+  - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+  - IP-CIDR6,fd7a:115c:a1e0::/48,DIRECT,no-resolve
+  - RULE-SET,ai-domain,AI 服务
+  - RULE-SET,ai-ip,AI 服务,no-resolve
+  - RULE-SET,ai-classical,AI 服务
+  - RULE-SET,proxy-domain,选择代理
+  - RULE-SET,proxy-ip,选择代理,no-resolve
+  - RULE-SET,proxy-classical,选择代理
+  - RULE-SET,direct-domain,自动直连
+  - RULE-SET,direct-ip,自动直连,no-resolve
+  - RULE-SET,direct-classical,自动直连
+  - RULE-SET,sg-ip,SG 新加坡,no-resolve
+  - RULE-SET,us-domain,US 美国
+  - RULE-SET,us-ip,US 美国,no-resolve
+  - RULE-SET,eu-ip,EU 欧洲,no-resolve
+  - GEOIP,private,DIRECT,no-resolve
+  - GEOIP,cn,DIRECT,no-resolve
+  - MATCH,选择代理
