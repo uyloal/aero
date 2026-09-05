@@ -1,0 +1,10 @@
+# NAME: ai-classical
+# UPDATED: 2026-09-05 02:59:46
+# TOTAL: 5
+
+payload:
+  - DOMAIN-KEYWORD,colab
+  - DOMAIN-KEYWORD,developerprofiles
+  - DOMAIN-KEYWORD,generativelanguage
+  - DOMAIN-KEYWORD,openai
+  - IP-ASN,20473
